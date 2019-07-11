@@ -117,7 +117,10 @@ def event_handler_plot(ploter_title, step, cost):
 # 该模型运行在单个CPU上
 use_cuda = False # 如想使用GPU，请设置为 True
 place = fluid.CUDAPlace(0) if use_cuda else fluid.CPUPlace()
-pa
+
+build_strategy = fluid.BuildStrategy()
+build_strategy.enable_inplace = True # 开启Inplace策略
+
 # 调用train_program 获取预测值，损失值，
 prediction, [avg_loss, acc] = train_program()
 
@@ -161,9 +164,6 @@ def train_test(train_test_program,
     # 返回平均损失值，平均准确率
     return avg_loss_val_mean, acc_val_mean
 
-main_program = fluid.default_main_program()
-test_program = fluid.default_main_program().clone(for_test=True)
-
 lists = []
 step = 0
 
@@ -178,6 +178,9 @@ test_reader = paddle.batch(
     paddle.reader.shuffle(
         paddle.dataset.mnist.test(), buf_size=500),
         batch_size=BATCH_SIZE)
+
+main_program = fluid.default_main_program()
+test_program = fluid.default_main_program().clone(for_test=True)
 
 for epoch_id in epochs:
     for step_id, data in enumerate(train_reader()):

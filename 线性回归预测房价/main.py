@@ -4,6 +4,7 @@ import numpy
 import math
 import sys
 
+
 #每次训练取数据集个数
 BATCH_SIZE = 20
 
@@ -60,6 +61,11 @@ def train_test(executor, program, reader, feeder, fetch_list):
         accumulated = [x_c[0] + x_c[1][0] for x_c in zip(accumulated, outs)] # 累加测试过程中的损失值
         count += 1 # 累加测试集中的样本数量
     return [x_d / count for x_d in accumulated] # 计算平均损失
+
+
+
+build_strategy = fluid.BuildStrategy()
+build_strategy.enable_inplace = True # 开启Inplace策略
 
 #训练主循环
 ##给出需要存储的目录名，并初始化一个执行器
